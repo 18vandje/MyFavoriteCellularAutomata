@@ -1,3 +1,4 @@
+
 /**
  * MFCA
  * My Favorite Cellular Automata
@@ -17,9 +18,9 @@ void setup() {
   frameRate(60);
   background(255);
   ellipseMode(CORNER);
-  requestedCellsPerGeneration = 300;
-  requestedRuleNumber = 12;
-  drawScaleFactor = 0.9;
+  requestedCellsPerGeneration = 20;
+  requestedRuleNumber = 201;
+  drawScaleFactor = 0.99;
   c = new CellularAutomaton(requestedCellsPerGeneration, requestedRuleNumber);
 }
 
@@ -27,8 +28,9 @@ void draw() {
   if (c.canGrow()) {
     c.show();
     c.evolve();
+    System.out.println(c.getRulePatternAsString());
   } else {
-    //c.showLabel();  // TODO: uncomment this line after the rest of your code is done
+    c.showLabel();  // TODOne: uncomment this line after the rest of your code is done
     noLoop();
   }
 }
@@ -51,7 +53,14 @@ class CellularAutomaton {
    *  Precondition: none
    */
   public CellularAutomaton(int n, int r) {
-    // TODO: implement this constructor
+    cellArray = new String[n];
+    for (int i = 0; i < cellArray.length; i++) {
+      cellArray[i] = "0";
+    }
+    cellArray[n/2] = "1";
+    ruleNumber = r;
+    currentGenerationNumber = 0;
+    canGrow = true;
   }
 
   public void updateCurrentGenerationNumber() {
@@ -76,7 +85,13 @@ class CellularAutomaton {
    *  Precondition: none
    */
   public void setRuleNumber(int n) {
-    // TODO: implement this method
+    if (n > 255) {
+      ruleNumber = 255;
+    } else if (n < 0) {
+      ruleNumber = 0;
+    } else {
+      ruleNumber = n;
+    }
   }
 
   public int getRuleNumber() {
@@ -92,8 +107,11 @@ class CellularAutomaton {
    */
   public String getRulePatternAsString() {
     String output = Integer.toBinaryString(getRuleNumber());
-    // TODO: finish implementing this method
-    return "";
+    // TODOne
+    while (output.length()<8) {
+      output = "0" + output;
+    }
+    return output;
   }
 
   /**
@@ -105,7 +123,10 @@ class CellularAutomaton {
    */
   public String[] getRulePatternAsArray() {
     String[] output = new String[8];
-    // TODO: finish implementing this method
+    String s = getRulePatternAsString();
+    for (int i = 0; i<s.length(); i++) {
+      output[i]= s.substring(i, i+1);
+    }
     return output;
   }
 
@@ -128,10 +149,15 @@ class CellularAutomaton {
    */
   private void updateCellArray() {
     String[] newArray = new String[cellArray.length];
+    newArray[0]="0";
+    newArray[newArray.length-1]="0";
     for (int i = 1; i < newArray.length - 1; i++) {
-      newArray[i] = getNewCellState("000");   // TODO: replace "000" with something more appropriate
+      newArray[i] = getNewCellState(cellArray[i-1] + cellArray[i] + cellArray[i+1]);   // TODOne
     }
-    // TODO: finish implementing this method
+    newArray[0]="0";
+    newArray[newArray.length-1]="0";
+    // TODOne: finish implementing this method???????????
+    cellArray = newArray;
   }
 
   /**
@@ -144,10 +170,23 @@ class CellularAutomaton {
    */
   private String getNewCellState(String neighborhood) {
     String[] arr = getRulePatternAsArray();
-    if (neighborhood == "111") {      // TODO: fix this so it uses a correct String comparison method
+    if (neighborhood.equals("111")) {      // TODOne
       return arr[0];
+    } else if (neighborhood.equals("110")) {
+      return arr[1];
+    } else if (neighborhood.equals("101")) {
+      return arr[2];
+    } else if (neighborhood.equals("100")) {
+      return arr[3];
+    } else if (neighborhood.equals("011")) {
+      return arr[4];
+    } else if (neighborhood.equals("010")) {
+      return arr[5];
+    } else if (neighborhood.equals("001")) {
+      return arr[6];
     } else {
-      return "0";
+      return arr[7];
+      
     }
     // TODO: change this method so it handles all possible 3-digit neighborhoods
   }
@@ -162,9 +201,9 @@ class CellularAutomaton {
 
   public void show() {
     for (int i = 0; i < cellArray.length; i++) {
-      if (true) {  // TODO: replace true with a useful predicate
-        fill(#952424);
-        noStroke();
+      if (cellArray[i].equals("1")) {  // TODOne
+        noFill();
+        stroke(255,0,0);
         rect(i * getCellSize(), 30 + getCurrentGenerationNumber() * getCellSize(), getDrawSize(), getDrawSize());
       }
     }
@@ -225,7 +264,7 @@ void keyPressed() {
       c.show();
       c.evolve();
     }
-    //c.showLabel();  // TODO: uncomment this line after the rest of your coding is done
+    c.showLabel();  // TODO: uncomment this line after the rest of your coding is done
     endRecord();
   }
 }
